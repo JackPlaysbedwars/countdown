@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Countdown to 2026 — Arvy's Ultimate New Year Experience</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Monoton&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1: #0b1020;
+    --bg2: #2a2d66;
+    --accent: #ff6b6b;
+    --glass: rgba(255,255,255,0.04);
+    --muted: #e6eef8;
+    --radius: 14px;
+    --ui-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    --neon: #7effd4;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family:'Poppins',system-ui,-apple-system; -webkit-font-smoothing:antialiased; color:var(--muted);}
+  body{
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    overflow:hidden;
+  }
+
+  /* App shell */
+  .app{
+    width:100%;
+    max-width:1200px;
+    min-height:680px;
+    border-radius:18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
+    box-shadow: var(--ui-shadow);
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr; min-height:850px}
+  }
+
+  /* Left pane - immersive experience */
+  .left{
+    padding:22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .header{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .brand{
+    display:flex; gap:12px; align-items:center;
+  }
+  .logo{
+    width:64px; height:64px; border-radius:12px;
+    background: linear-gradient(135deg,#ff8a00,#e52e71);
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:#111;
+    font-family:'Monoton', cursive; font-size:22px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  .title{font-size:20px; font-weight:700; color:var(--muted)}
+  .subtitle{font-size:12px; color:rgba(255,255,255,0.7)}
+
+  /* 3D cube container */
+  .cube-stage{
+    width:100%; height:420px; margin-top:18px; display:flex; align-items:center; justify-content:center;
+    perspective:1400px; position:relative;
+  }
+  .cube{
+    width:320px; height:200px; transform-style:preserve-3d; transition:transform 0.6s cubic-bezier(.2,.9,.3,1);
+    position:relative;
+  }
+  .face{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    backface-visibility:hidden; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    color:var(--muted); font-weight:800;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  .face.front{ transform: translateZ(120px); width:360px; height:240px; }
+  .face.back { transform: rotateY(180deg) translateZ(120px); width:360px; height:240px; }
+  .face.left { transform: rotateY(-90deg) translateZ(160px); width:320px; height:240px; }
+  .face.right{ transform: rotateY(90deg) translateZ(160px); width:320px; height:240px; }
+  .face.top{ transform: rotateX(90deg) translateZ(100px); width:320px; height:240px; }
+  .face.bottom{ transform: rotateX(-90deg) translateZ(100px); width:320px; height:240px; }
+
+  /* countdown digits inside cube */
+  .count-large{ font-size:44px; letter-spacing:2px; text-align:center; }
+  .small-meta{ font-size:13px; color:rgba(255,255,255,0.7); margin-top:6px }
+
+  /* mascot area (bottom left) */
+  .mascot{
+    position:absolute; left:28px; bottom:24px; width:160px; height:160px;
+    background: linear-gradient(135deg,#111827,#0b1220); border-radius:18px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    display:flex; align-items:center; justify-content:center; flex-direction:column; padding:12px;
+    user-select:none;
+  }
+  .mascot .face{
+    width:96px; height:96px; border-radius:50%; background:linear-gradient(180deg,#ffd78a,#ff6b6b); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:40px; color:#111;
+    transition: transform 360ms cubic-bezier(.2,.9,.3,1), box-shadow 360ms;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45), 0 0 0 0 rgba(126,255,212,0);
+  }
+  .mascot.smile .face{ transform: translateY(-6px) rotate(-6deg) }
+  .mascot.sleep .face{ transform: scale(0.98) rotate(6deg); filter:brightness(0.9) saturate(0.7) }
+  .mascot.dance .face{ animation: mascotDance 900ms infinite linear; box-shadow: 0 10px 30px rgba(126,255,212,0.18); }
+  @keyframes mascotDance { 0%{transform:translateY(-4px)}50%{transform:translateY(4px)}100%{transform:translateY(-4px)} }
+
+  .mascot .label{ margin-top:8px; font-size:13px; color:rgba(255,255,255,0.85); text-align:center }
+
+  /* right pane - controls */
+  .right{ padding:18px; display:flex; flex-direction:column; gap:12px; overflow:auto; }
+  .panel{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:12px; box-shadow: 0 6px 18px rgba(0,0,0,0.25)}
+  .panel h3{ margin:0 0 8px 0; font-size:15px; color:var(--muted) }
+
+  .controls{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px; }
+  button.btn{ background: linear-gradient(90deg,var(--accent),#ffd166); border:0; color:#111; padding:10px 12px; border-radius:10px; font-weight:700; cursor:pointer; }
+  button.ghost{ background:var(--glass); border:1px solid rgba(255,255,255,0.04); color:var(--muted) }
+
+  /* wishes & quotes */
+  .wish-input{ display:flex; gap:8px; margin-top:8px }
+  input[type=text]{ padding:10px 12px; border-radius:10px; border:0; background:rgba(255,255,255,0.03); color:var(--muted); outline:none; }
+
+  /* milestones list */
+  .milestone{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px; border-radius:10px; background:rgba(0,0,0,0.22); margin-top:8px }
+  .milestone .meta{ flex:1; font-size:14px }
+  .progress { height:8px; background:rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; width:100px; margin-left:8px }
+  .progress > i{ display:block; height:100%; background:linear-gradient(90deg,var(--neon),#ffd166); width:0% }
+
+  /* small footer */
+  .footer { font-size:12px; color:rgba(255,255,255,0.64); margin-top:8px; text-align:center }
+
+  /* canvas overlays */
+  #particleCanvas, #arCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; }
+
+  /* AR camera overlay panel */
+  .ar-controls{ display:flex; gap:8px; margin-top:8px; align-items:center }
+  .cam-preview{ position:fixed; right:22px; bottom:22px; width:140px; height:200px; border-radius:12px; overflow:hidden; background:#000; box-shadow:0 12px 30px rgba(0,0,0,0.6); z-index:6; display:none; }
+  .cam-preview video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1) } /* mirror */
+
+  /* responsive tweaks */
+  @media (max-width:680px){
+    .mascot{ left:12px; bottom:12px; width:120px; height:120px }
+    .cube { transform: scale(0.88) }
+  }
+
+  /* neon glow for important */
+  .neon { color: var(--neon); text-shadow: 0 0 8px rgba(126,255,212,0.12), 0 4px 16px rgba(0,0,0,0.6); }
+
+  /* subtle transitions */
+  .face, .panel, .btn, .ghost, .logo { transition: all 320ms cubic-bezier(.2,.9,.3,1); }
+</style>
+</head>
+
+<body>
+<canvas id="particleCanvas" aria-hidden="true"></canvas>
+<canvas id="arCanvas" aria-hidden="true"></canvas>
+
+<div class="app" role="application" aria-label="Countdown to 2026 interactive experience">
+  <!-- LEFT -->
+  <div class="left" id="leftPane">
+    <div class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">26</div>
+        <div>
+          <div class="title">Countdown to 2026</div>
+          <div class="subtitle">Interactive • 3D • Mascot • AR • Weather</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div id="greeting" class="subtitle">Welcome</div>
+        <button id="profileBtn" class="ghost" title="Profile">Profile</button>
+      </div>
+    </div>
+
+    <!-- 3D cube -->
+    <div class="cube-stage" id="cubeStage" aria-hidden="false">
+      <div class="cube" id="cube">
+        <div class="face front" id="faceFront">
+          <div>
+            <div class="count-large" id="bigCountdown">—</div>
+            <div class="small-meta" id="subMeta">Time to Jan 1, 2026 00:00 IST</div>
+          </div>
+        </div>
+
+        <div class="face back">
+          <div>
+            <div class="count-large" id="backText">Are you ready?</div>
+            <div class="small-meta">Flip for a secret</div>
+          </div>
+        </div>
+
+        <div class="face left">
+          <div>
+            <div class="count-large" id="leftText">Days Left</div>
+            <div class="small-meta" id="leftMeta">Stay motivated</div>
+          </div>
+        </div>
+
+        <div class="face right">
+          <div>
+            <div class="count-large" id="rightText">Goals</div>
+            <div class="small-meta" id="rightMeta">Track milestones</div>
+          </div>
+        </div>
+
+        <div class="face top">
+          <div>
+            <div class="count-large neon" id="topText">2026</div>
+            <div class="small-meta">A new beginning</div>
+          </div>
+        </div>
+
+        <div class="face bottom">
+          <div>
+            <div class="count-large" id="bottomText">Happy New Year</div>
+            <div class="small-meta">Celebrate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mascot -->
+    <div class="mascot" id="mascot" title="Click me to make me jump">
+      <div class="face" id="mascotFace">🤖</div>
+      <div class="label" id="mascotLabel">NoodleBot</div>
+    </div>
+
+    <!-- Floating wishes layer (visual) -->
+    <div id="floating" aria-hidden="true" style="position:absolute; inset:0; pointer-events:none; z-index:3"></div>
+
+    <div class="footer" style="position:relative; z-index:4; margin-top:12px; text-align:center">
+      Tip: Tap the cube to rotate • Press <strong>T</strong> to change theme • <span class="neon">Midnight will be loud</span>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <aside class="right" role="complementary" aria-label="Controls and settings">
+
+    <div class="panel" id="profilePanel">
+      <h3 id="profileHeading">Profile</h3>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div style="flex:1;">
+          <div style="font-weight:700" id="welcomeName">Welcome back!</div>
+          <div style="font-size:13px; color:rgba(255,255,255,0.72)" id="profileMeta">Profile saves locally (no sign-in)</div>
+        </div>
+        <div>
+          <button class="ghost" id="resetProfile">Reset</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label style="font-size:13px">Your name</label>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <input type="text" id="nameInput" placeholder="Arvy" style="flex:1" />
+          <button class="btn" id="saveName">Save</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label style="font-size:13px">Theme</label>
+        <div class="controls" style="margin-top:8px;">
+          <button class="ghost themeBtn" data-theme="neon">Neon</button>
+          <button class="ghost themeBtn" data-theme="midnight">Midnight</button>
+          <button class="ghost themeBtn" data-theme="pastel">Pastel</button>
+          <button class="ghost themeBtn" data-theme="fireworks">Fireworks</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="countPanel">
+      <h3>Countdown & Controls</h3>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn" id="celebrateBtn">Celebrate</button>
+        <button class="ghost" id="flipCube">Flip Cube</button>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="toggleAR">AR Fireworks</button>
+          <button class="ghost" id="cameraBtn">Camera</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div style="font-size:13px">Live quote</div>
+        <div id="quoteBox" style="margin-top:8px; font-weight:700; color:var(--muted)"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="ghost" id="newQuote">New Quote</button>
+          <button class="ghost" id="copyShare">Share</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="wishPanel">
+      <h3>Wish Wall</h3>
+      <div class="wish-input">
+        <input id="wishInput" placeholder="Write your wish for 2026..." type="text" />
+        <button class="btn" id="sendWish">Send</button>
+      </div>
+      <div id="wishList" style="margin-top:10px; max-height:120px; overflow:auto"></div>
+    </div>
+
+    <div class="panel" id="milestonesPanel">
+      <h3>Milestones & Goals</h3>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <input id="goalInput" placeholder="Add a milestone (e.g., finish project)" />
+        <button class="btn" id="addGoal">Add</button>
+      </div>
+      <div id="goalsList" style="margin-top:10px; max-height:200px; overflow:auto"></div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="ghost" id="exportGoals">Export</button>
+        <button class="ghost" id="clearGoals">Clear</button>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- Camera preview for AR -->
+<div class="cam-preview" id="camPreview" aria-hidden="true">
+  <video id="camVideo" autoplay muted playsinline></video>
+</div>
+
+<script>
+/* -----------------------------
+   App: Countdown2026 Full
+   Features included:
+   - 3D rotating cube countdown
+   - Sound FX + midnight beat drop
+   - Mascot (reactive)
+   - Weather-based background (client fetch)
+   - AR fireworks overlay (getUserMedia)
+   - Profile system (localStorage)
+   - Milestones tracker with progress + local storage
+   - Wishes, quotes, share, confetti & fireworks
+   ------------------------------*/
+
+/* ---------- Configuration ---------- */
+const TARGET_ISO = '2026-01-01T00:00:00+05:30'; // Jan 1, 2026 00:00 IST
+const targetDate = new Date(TARGET_ISO);
+const MAX_GOALS_STORE = 50;
+
+/* ---------- State ---------- */
+let state = {
+  theme: localStorage.getItem('countdown:theme') || 'neon',
+  name: localStorage.getItem('countdown:name') || 'Arvy',
+  wishes: JSON.parse(localStorage.getItem('countdown:wishes') || '[]'),
+  goals: JSON.parse(localStorage.getItem('countdown:goals') || '[]'),
+  audioAllowed: false,
+  arActive: false,
+  cameraStream: null,
+  secOnSite: 0
+};
+
+/* ---------- DOM refs ---------- */
+const cube = document.getElementById('cube');
+const bigCountdown = document.getElementById('bigCountdown');
+const subMeta = document.getElementById('subMeta');
+const greeting = document.getElementById('greeting');
+const profileBtn = document.getElementById('profileBtn');
+const nameInput = document.getElementById('nameInput');
+const saveName = document.getElementById('saveName');
+const welcomeName = document.getElementById('welcomeName');
+const profileHeading = document.getElementById('profileHeading');
+const themeBtns = document.querySelectorAll('.themeBtn');
+const celebrateBtn = document.getElementById('celebrateBtn');
+const flipCubeBtn = document.getElementById('flipCube');
+const toggleARBtn = document.getElementById('toggleAR');
+const camBtn = document.getElementById('cameraBtn');
+const camPreview = document.getElementById('camPreview');
+const camVideo = document.getElementById('camVideo');
+
+const quoteBox = document.getElementById('quoteBox');
+const newQuoteBtn = document.getElementById('newQuote');
+const copyShareBtn = document.getElementById('copyShare');
+
+const wishInput = document.getElementById('wishInput');
+const sendWishBtn = document.getElementById('sendWish');
+const wishList = document.getElementById('wishList');
+
+const goalInput = document.getElementById('goalInput');
+const addGoalBtn = document.getElementById('addGoal');
+const goalsList = document.getElementById('goalsList');
+const exportGoalsBtn = document.getElementById('exportGoals');
+const clearGoalsBtn = document.getElementById('clearGoals');
+
+const particleCanvas = document.getElementById('particleCanvas');
+const arCanvas = document.getElementById('arCanvas');
+
+const mascot = document.getElementById('mascot');
+const mascotFace = document.getElementById('mascotFace');
+const mascotLabel = document.getElementById('mascotLabel');
+
+const floatingLayer = document.getElementById('floating');
+
+/* ---------- Utilities ---------- */
+function $(s) { return document.querySelector(s); }
+function now() { return new Date(); }
+function pad(n){ return String(n).padStart(2,'0'); }
+
+/* ---------- Themes ---------- */
+const themeMap = {
+  neon: { bg1:'#0b1020', bg2:'#082032', accent:'#7effd4', neon:'#7effd4' },
+  midnight: { bg1:'#071226', bg2:'#0b1b2b', accent:'#7cc0ff', neon:'#7cc0ff' },
+  pastel: { bg1:'#fff1f7', bg2:'#f5f7ff', accent:'#7b8cff', neon:'#7b8cff', text:'#222' },
+  fireworks: { bg1:'#1b0b1a', bg2:'#2b0b1a', accent:'#ffdd55', neon:'#ffd166' }
+};
+function applyTheme(name){
+  state.theme = name;
+  localStorage.setItem('countdown:theme', name);
+  const t = themeMap[name] || themeMap.neon;
+  document.documentElement.style.setProperty('--bg1', t.bg1);
+  document.documentElement.style.setProperty('--bg2', t.bg2);
+  document.documentElement.style.setProperty('--accent', t.accent);
+  document.documentElement.style.setProperty('--neon', t.neon || t.accent);
+  // for light themes adjust text color
+  if(t.text) document.documentElement.style.setProperty('--muted', t.text);
+  document.querySelectorAll('.themeBtn').forEach(b=> b.style.opacity = b.dataset.theme === name ? '1' : '0.7');
+}
+
+/* ---------- Countdown logic (3D cube rotation intensity) ---------- */
+let cubeRotation = {x: -12, y: 22}; // initial angles
+function updateCountdown(){
+  const nowT = new Date();
+  let diffMs = Math.max(0, targetDate - nowT);
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const days = Math.floor(totalSeconds / (24*3600));
+  const hours = Math.floor((totalSeconds % (24*3600)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  bigCountdown.textContent = `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+  subMeta.textContent = `Target: Jan 1, 2026 00:00 IST • ${formatCountdownShort()}`;
+
+  // rotate cube slowly and speed up as time gets closer (visual effect)
+  const tRemain = totalSeconds;
+  const speedFactor = Math.max(0.15, Math.min(2.8, 1 + (100000 / Math.max(1, tRemain)))); // ramps up near zero
+  cubeRotation.y += 0.04 * speedFactor;
+  cubeRotation.x += 0.01 * Math.sin(Date.now()/6000);
+  cube.style.transform = `rotateX(${cubeRotation.x}deg) rotateY(${cubeRotation.y}deg)`;
+
+  if(totalSeconds <= 0){
+    onMidnight();
+  }
+}
+function formatCountdownShort(){
+  const nowT = new Date();
+  let diff = Math.max(0, Math.floor((targetDate - nowT)/1000));
+  const d = Math.floor(diff/(3600*24)); diff -= d*(3600*24);
+  const h = Math.floor(diff/3600); diff -= h*3600;
+  const m = Math.floor(diff/60); const s = diff - m*60;
+  return `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+}
+
+/* ---------- Timer ---------- */
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+/* ---------- Profile ---------- */
+function loadProfile(){
+  state.name = localStorage.getItem('countdown:name') || state.name;
+  nameInput.value = state.name;
+  greeting.textContent = `Welcome, ${state.name}`;
+  welcomeName.textContent = `Welcome back, ${state.name}!`;
+  mascotLabel.textContent = state.name + "'s NoodleBot";
+}
+saveName.addEventListener('click', ()=>{
+  const val = nameInput.value.trim();
+  if(val) { state.name = val; localStorage.setItem('countdown:name', val); loadProfile(); showToast('Name saved'); }
+});
+document.getElementById('resetProfile').addEventListener('click', ()=>{
+  if(confirm('Reset all saved profile data?')) {
+    localStorage.removeItem('countdown:name');
+    localStorage.removeItem('countdown:wishes');
+    localStorage.removeItem('countdown:goals');
+    localStorage.removeItem('countdown:theme');
+    location.reload();
+  }
+});
+profileBtn.addEventListener('click', ()=> {
+  // focus name input
+  nameInput.focus();
+});
+
+/* ---------- Quotes ---------- */
+const quotes = [
+  "2026 is your canvas—paint it boldly.",
+  "Success begins with a single step.",
+  "Small progress is still progress.",
+  "The future belongs to those who prepare today.",
+  "Every day is a new chance to grow.",
+  "Stronger. Better. Braver. You.",
+  "Believe—2026 is on your side.",
+  "Dreams only work when you do.",
+  "Discipline beats motivation.",
+  "Your future self is watching—make him proud.",
+  "Push now. Shine later.",
+  "The grind never betrays you.",
+  "Courage is a decision—choose it daily.",
+  "Consistency makes legends.",
+  "You are closer than you think.",
+  "Every moment shapes your 2026.",
+  "Greatness starts quietly.",
+  "2026 will reward your efforts.",
+  "No limits. Only goals.",
+  "Show the world what Arvy can do."
+];
+function randomQuote(){
+  const q = quotes[Math.floor(Math.random()*quotes.length)];
+  quoteBox.textContent = q;
+  return q;
+}
+newQuoteBtn.addEventListener('click', ()=> {
+  randomQuote();
+  showToast('New quote');
+});
+copyShareBtn.addEventListener('click', async ()=> {
+  const text = `Countdown to 2026 — ${formatCountdownShort()} — Wish: "${state.wishes.slice(-1)[0]||'—'}" — by ${state.name || 'Arvy'}`;
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Share text copied');
+  }catch(e){ showToast('Clipboard denied'); }
+});
+randomQuote();
+
+/* ---------- Wishes ---------- */
+function renderWishes(){
+  wishList.innerHTML = '';
+  state.wishes.slice().reverse().forEach(w=>{
+    const el = document.createElement('div');
+    el.textContent = w;
+    el.style.padding = '6px 8px';
+    el.style.borderRadius = '8px';
+    el.style.marginTop = '6px';
+    el.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06))';
+    wishList.appendChild(el);
+  });
+}
+sendWishBtn.addEventListener('click', ()=> {
+  const v = wishInput.value.trim();
+  if(!v) return;
+  addWish(v);
+  wishInput.value='';
+});
+function addWish(text){
+  state.wishes = state.wishes || [];
+  state.wishes.push(text);
+  if(state.wishes.length > 50) state.wishes.shift();
+  localStorage.setItem('countdown:wishes', JSON.stringify(state.wishes));
+  renderWishes();
+  floatWish(text);
+  showToast('Wish added');
+}
+renderWishes();
+
+/* floating wish animation */
+function floatWish(text){
+  const el = document.createElement('div');
+  el.textContent = text;
+  el.style.position='absolute';
+  el.style.left = (10 + Math.random()*70) + '%';
+  el.style.bottom = '-40px';
+  el.style.padding = '8px 12px';
+  el.style.borderRadius = '999px';
+  el.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))';
+  el.style.color = 'var(--muted)';
+  el.style.zIndex = 5;
+  floatingLayer.appendChild(el);
+  const dur = 6000 + Math.random()*4000;
+  el.animate([
+    { transform: 'translateY(0)', opacity: 1 },
+    { transform: `translateY(-${350 + Math.random()*200}px)`, opacity: 0.05 }
+  ], { duration: dur, easing: 'cubic-bezier(.2,.8,.2,1)'});
+  setTimeout(()=> el.remove(), dur + 50);
+}
+
+/* ---------- Goals / Milestones ---------- */
+function renderGoals(){
+  goalsList.innerHTML = '';
+  state.goals.forEach((g, idx) => {
+    const div = document.createElement('div');
+    div.className = 'milestone';
+    div.innerHTML = `
+      <div class="meta">
+        <div style="font-weight:700">${escapeHtml(g.title)}</div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.7)">${g.note || ''}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="progress" aria-hidden="true"><i style="width:${g.progress||0}%"></i></div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="ghost" data-idx="${idx}" onclick="increaseProgress(event)">+10%</button>
+          <button class="ghost" data-idx="${idx}" onclick="completeGoal(event)">✓</button>
+        </div>
+      </div>`;
+    goalsList.appendChild(div);
+  });
+}
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+addGoalBtn.addEventListener('click', ()=>{
+  const v = goalInput.value.trim();
+  if(!v) return;
+  state.goals = state.goals || [];
+  state.goals.push({ title: v, progress: 0, note: ''});
+  goalInput.value='';
+  localStorage.setItem('countdown:goals', JSON.stringify(state.goals));
+  renderGoals();
+  showToast('Goal added');
+});
+window.increaseProgress = function(e){
+  const idx = +e.currentTarget.dataset.idx;
+  state.goals[idx].progress = Math.min(100, (state.goals[idx].progress || 0) + 10);
+  localStorage.setItem('countdown:goals', JSON.stringify(state.goals));
+  renderGoals();
+  showToast('Progress updated');
+}
+window.completeGoal = function(e){
+  const idx = +e.currentTarget.dataset.idx;
+  state.goals[idx].progress = 100;
+  localStorage.setItem('countdown:goals', JSON.stringify(state.goals));
+  renderGoals();
+  showToast('Goal completed — well done!');
+}
+exportGoalsBtn.addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state.goals, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'goals_2026.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+clearGoalsBtn.addEventListener('click', ()=>{
+  if(confirm('Clear all goals?')){
+    state.goals = []; localStorage.setItem('countdown:goals', JSON.stringify(state.goals)); renderGoals();
+  }
+});
+
+/* load saved goals */
+state.goals = JSON.parse(localStorage.getItem('countdown:goals') || '[]');
+renderGoals();
+
+/* ---------- Particles (background) ---------- */
+const pCtx = particleCanvas.getContext('2d');
+function resizeParticleCanvas(){
+  particleCanvas.width = particleCanvas.clientWidth = particleCanvas.offsetWidth;
+  particleCanvas.height = particleCanvas.clientHeight = particleCanvas.offsetHeight;
+}
+window.addEventListener('resize', resizeParticleCanvas);
+resizeParticleCanvas();
+
+let particles = [];
+function initParticles(){
+  particles = [];
+  for(let i=0;i<80;i++){
+    particles.push({
+      x: Math.random()*particleCanvas.width,
+      y: Math.random()*particleCanvas.height,
+      r: 1 + Math.random()*4,
+      vx: (Math.random()-0.5)*0.4,
+      vy: -0.1 - Math.random()*0.6,
+      alpha: 0.08 + Math.random()*0.3
+    });
+  }
+}
+function drawParticles(){
+  pCtx.clearRect(0,0,particleCanvas.width,particleCanvas.height);
+  particles.forEach(p=>{
+    p.x += p.vx; p.y += p.vy;
+    if(p.y < -10) { p.y = particleCanvas.height + 10; p.x = Math.random()*particleCanvas.width; }
+    pCtx.beginPath();
+    pCtx.fillStyle = `rgba(255,255,255,${p.alpha})`;
+    pCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    pCtx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+initParticles(); drawParticles();
+
+/* ---------- Mascot interactions ---------- */
+mascot.addEventListener('click', ()=>{
+  // simple jump
+  mascot.classList.add('dance'); setTimeout(()=> mascot.classList.remove('dance'), 1600);
+  playClick();
+});
+function setMascotState(stateName){
+  mascot.classList.remove('smile','sleep','dance');
+  if(stateName) mascot.classList.add(stateName);
+}
+
+/* ---------- WebAudio: fx + beat drop ---------- */
+let audioCtx = null;
+function ensureAudio(){
+  if(audioCtx) return audioCtx;
+  try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  catch(e){ audioCtx = null; }
+  return audioCtx;
+}
+
+function playClick(){
+  const ctx = ensureAudio(); if(!ctx) return;
+  const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type='sine'; o.frequency.value=700;
+  o.connect(g); g.connect(ctx.destination);
+  g.gain.value=0.0001; g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+  o.start(); o.stop(ctx.currentTime + 0.3);
+}
+
+function playBoom(){
+  const ctx = ensureAudio(); if(!ctx) return;
+  const o = ctx.createOscillator(); const g = ctx.createGain(); const f = ctx.createBiquadFilter();
+  o.type='sawtooth'; o.frequency.value = 120;
+  f.type='lowpass'; f.frequency.value = 900;
+  o.connect(f); f.connect(g); g.connect(ctx.destination);
+  g.gain.setValueAtTime(0.0001, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + 0.06);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1);
+  o.start(); o.stop(ctx.currentTime + 1.2);
+}
+
+function beatDrop(){
+  const ctx = ensureAudio(); if(!ctx) return;
+  const now = ctx.currentTime;
+  // kick loop
+  const master = ctx.createGain(); master.connect(ctx.destination);
+  let i=0;
+  const interval = setInterval(()=>{
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type='sine'; o.frequency.value = 60;
+    o.connect(g); g.connect(master);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    o.start(); o.stop(ctx.currentTime + 0.6);
+    i++;
+    if(i>8){ clearInterval(interval); master.disconnect(); }
+  }, 300);
+}
+
+/* ---------- Midnight handler ---------- */
+let midnightTriggered = false;
+function onMidnight(){
+  if(midnightTriggered) return;
+  midnightTriggered = true;
+  // visuals
+  triggerFireworks();
+  explodeConfetti();
+  // sound
+  try{ ensureAudio(); if(audioCtx) { playBoom(); setTimeout(()=> beatDrop(), 250); } } catch(e){}
+  // mascot dance
+  setMascotState('dance');
+  // greeting change
+  showToast('🎉 Happy 2026! 🎉');
+  // flash the cube
+  cube.style.transition = 'transform 300ms ease';
+  cube.style.transform += ' scale(1.02)';
+  setTimeout(()=> cube.style.transform = cube.style.transform.replace(' scale(1.02)',''), 900);
+}
+
+/* ---------- Fireworks & Confetti ---------- */
+const arCtx = arCanvas.getContext('2d');
+function resizeAR(){
+  arCanvas.width = arCanvas.clientWidth = arCanvas.offsetWidth;
+  arCanvas.height = arCanvas.clientHeight = arCanvas.offsetHeight;
+}
+window.addEventListener('resize', resizeAR);
+resizeAR();
+
+function triggerFireworks(){
+  // quick CPU friendly fireworks on arCanvas
+  const W = arCanvas.width, H = arCanvas.height;
+  let particles = [];
+  for(let k=0;k<10;k++){
+    const cx = Math.random()*W, cy = Math.random()*H*0.6;
+    for(let i=0;i<50;i++){
+      particles.push({
+        x: cx, y: cy,
+        vx: Math.cos(Math.random()*Math.PI*2) * (Math.random()*6+1),
+        vy: Math.sin(Math.random()*Math.PI*2) * (Math.random()*6+1),
+        life: 60 + Math.random()*40,
+        color: `hsl(${Math.random()*360} 100% 65%)`,
+        t:0
+      });
+    }
+  }
+  let frames = 0;
+  const id = setInterval(()=>{
+    frames++;
+    arCtx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.t++;
+      arCtx.globalAlpha = Math.max(0, 1 - p.t/p.life);
+      arCtx.fillStyle = p.color;
+      arCtx.beginPath();
+      arCtx.arc(p.x,p.y, 2 + Math.random()*3, 0, Math.PI*2);
+      arCtx.fill();
+    });
+    if(frames > 120){ clearInterval(id); arCtx.clearRect(0,0,W,H); }
+  }, 30);
+}
+
+function explodeConfetti(){
+  const W = arCanvas.width, H = arCanvas.height;
+  let conf = [];
+  for(let i=0;i<200;i++){
+    conf.push({
+      x: W/2, y: H/3,
+      vx: (Math.random()-0.5)*8, vy: (Math.random()-1.5)*8,
+      r: 3 + Math.random()*6, color: ['#ffc857','#ff6b6b','#6be4ff','#9b6bff','#7effb2'][Math.floor(Math.random()*5)],
+      t:0, life: 90 + Math.random()*60
+    });
+  }
+  let frames = 0;
+  const id = setInterval(()=>{
+    frames++;
+    arCtx.clearRect(0,0,W,H);
+    conf.forEach(c=>{
+      c.t++; c.vy += 0.18; c.x += c.vx; c.y += c.vy;
+      arCtx.globalAlpha = Math.max(0, 1 - c.t/c.life);
+      arCtx.fillStyle = c.color;
+      arCtx.fillRect(c.x, c.y, c.r, c.r*1.4);
+    });
+    if(frames > 160){ clearInterval(id); arCtx.clearRect(0,0,W,H); }
+  }, 30);
+}
+
+/* ---------- AR Fireworks (camera overlay) ---------- */
+let camStream = null;
+async function startCameraPreview(){
+  if(camStream) return;
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    camVideo.srcObject = camStream;
+    camPreview.style.display = 'block';
+    // Also show full-screen camera overlay if AR active - connect draw loop to use video frames as background
+  }catch(e){
+    console.warn('Camera denied or unavailable', e);
+    showToast('Camera access denied or unavailable');
+  }
+}
+async function stopCameraPreview(){
+  if(camStream){
+    camStream.getTracks().forEach(t=>t.stop());
+    camStream = null;
+    camVideo.srcObject = null;
+    camPreview.style.display = 'none';
+  }
+}
+
+/* AR toggle */
+toggleARBtn.addEventListener('click', async ()=>{
+  if(state.arActive){
+    // stop AR
+    state.arActive=false; toggleARBtn.textContent='AR Fireworks';
+    await stopCameraPreview();
+    arCanvas.style.pointerEvents='none';
+    arCanvas.style.opacity='0.0';
+  } else {
+    // start AR
+    try{
+      await startCameraPreview();
+      state.arActive=true; toggleARBtn.textContent='Stop AR';
+      arCanvas.style.opacity='1.0';
+      // draw loop: overlay fireworks drawn earlier will simply draw on arCanvas; we mimic AR by showing camPreview and arCanvas on top
+      showToast('AR ready — tap screen to spawn fireworks');
+    }catch(e){ showToast('AR start failed'); }
+  }
+});
+
+/* when user taps/clicks on left pane spawn fireworks at pointer coords on arCanvas */
+document.getElementById('leftPane').addEventListener('click', (e)=> {
+  if(!state.arActive) return;
+  const rect = arCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  spawnFireAt(x,y);
+});
+
+function spawnFireAt(x,y){
+  const W = arCanvas.width, H = arCanvas.height;
+  let particles = [];
+  for(let i=0;i<60;i++){
+    particles.push({
+      x, y,
+      vx: Math.cos(Math.random()*Math.PI*2) * (Math.random()*6+1),
+      vy: Math.sin(Math.random()*Math.PI*2) * (Math.random()*6+1),
+      life: 40 + Math.random()*40,
+      color: `hsl(${Math.random()*360} 100% 60%)`,
+      t:0
+    });
+  }
+  let frames = 0;
+  const id = setInterval(()=>{
+    frames++;
+    arCtx.clearRect(0,0,arCanvas.width,arCanvas.height);
+    particles.forEach(p=>{
+      p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.t++;
+      arCtx.globalAlpha = Math.max(0, 1 - p.t/p.life);
+      arCtx.fillStyle = p.color;
+      arCtx.beginPath();
+      arCtx.arc(p.x,p.y, 2 + Math.random()*3, 0, Math.PI*2);
+      arCtx.fill();
+    });
+    if(frames > 80){ clearInterval(id); arCtx.clearRect(0,0,arCanvas.width,arCanvas.height); }
+  }, 24);
+}
+
+/* camera button handler */
+camBtn.addEventListener('click', async ()=>{
+  if(camPreview.style.display === 'block') { await stopCameraPreview(); } else { await startCameraPreview(); }
+});
+
+/* ---------- UI controls ---------- */
+celebrateBtn.addEventListener('click', ()=> {
+  triggerFireworks(); explodeConfetti(); playBoom(); beatDrop();
+});
+flipCubeBtn.addEventListener('click', ()=> {
+  cube.style.transform += ' rotateY(180deg)';
+  playClick();
+});
+document.querySelectorAll('.themeBtn').forEach(b=>{
+  b.addEventListener('click', ()=> { applyTheme(b.dataset.theme); playClick(); });
+});
+
+/* ---------- small helpers ---------- */
+function showToast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.position = 'fixed';
+  t.style.right = '18px';
+  t.style.bottom = '18px';
+  t.style.padding = '10px 14px';
+  t.style.borderRadius = '10px';
+  t.style.background = 'rgba(0,0,0,0.7)';
+  t.style.color = '#fff';
+  t.style.zIndex = 9999;
+  document.body.appendChild(t);
+  setTimeout(()=> t.style.opacity = 0, 1600);
+  setTimeout(()=> t.remove(), 2300);
+}
+
+/* ---------- Weather-based backgrounds (client-side) ---------- */
+/* We'll attempt to use a simple public weather API (Open-Meteo) that does not require a key.
+   The site will attempt to get user's geolocation, and then fetch current weather to adapt background.
+   If geolocation denied, it keeps the selected theme.
+*/
+async function applyWeatherBackground(){
+  try{
+    const geo = await new Promise((res, rej)=>{
+      navigator.geolocation.getCurrentPosition(p => res(p.coords), err => rej(err), { timeout: 5000 });
+    });
+    const lat = geo.latitude, lon = geo.longitude;
+    // Open-Meteo API (no key)
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+    const data = await resp.json();
+    const code = data.current_weather?.weathercode;
+    // map codes: 0 clear, 1..3 mainly clear/clouds, 45.. fog, 51.. rain-ish, 61.. more rain, 71..snow, 95..thunder
+    if(code === 0){
+      // sunny
+      applyTheme('pastel'); showToast('Weather: Clear • Applied Sunny theme');
+    } else if(code >= 1 && code <= 3){
+      applyTheme('neon'); showToast('Weather: Partly cloudy');
+    } else if((code >= 51 && code <= 67) || (code >= 80 && code <= 86)){
+      // rain
+      applyTheme('midnight'); showToast('Weather: Rainy • Applied Rain theme');
+      // add rain particles
+      spawnRain();
+    } else if(code >= 95){
+      applyTheme('fireworks'); showToast('Weather: Thunderstorm');
+    } else {
+      applyTheme('neon');
+    }
+  }catch(e){
+    // permission denied or fetch failed -> keep theme
+    console.warn('Weather step failed', e);
+  }
+}
+function spawnRain(){
+  // small ephemeral raindrops on particle layer
+  const rainDrops = [];
+  for(let i=0;i<140;i++){
+    rainDrops.push({
+      x: Math.random()*particleCanvas.width,
+      y: Math.random()*particleCanvas.height,
+      vy: 4 + Math.random()*8,
+      l: 8 + Math.random()*30
+    });
+  }
+  let frames=0;
+  const id = setInterval(()=>{
+    frames++;
+    pCtx.fillStyle = 'rgba(255,255,255,0.02)';
+    rainDrops.forEach(r=>{
+      pCtx.beginPath(); pCtx.moveTo(r.x, r.y); pCtx.lineTo(r.x, r.y + r.l); pCtx.strokeStyle = 'rgba(255,255,255,0.05)'; pCtx.lineWidth = 1; pCtx.stroke();
+      r.y += r.vy; if(r.y > particleCanvas.height) r.y = -10;
+    });
+    if(frames > 180) clearInterval(id);
+  }, 30);
+}
+
+/* ---------- Small accessibility /keyboard ---------- */
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 't') {
+    // rotate through themes
+    const keys = Object.keys(themeMap);
+    const idx = keys.indexOf(state.theme);
+    applyTheme(keys[(idx+1)%keys.length]);
+    showToast('Theme changed');
+  }
+  if(e.key === 'm') { celebrateBtn.click(); }
+});
+
+/* ---------- Initialization ---------- */
+(function init(){
+  applyTheme(state.theme);
+  loadProfile();
+  // load saved wishes & goals
+  state.wishes = JSON.parse(localStorage.getItem('countdown:wishes') || '[]');
+  state.goals = JSON.parse(localStorage.getItem('countdown:goals') || '[]');
+  renderWishes(); renderGoals();
+
+  // ask for audio unlock on user gesture (defer until user interacts)
+  ['click','keydown','touchstart'].forEach(ev=>{
+    document.addEventListener(ev, function unlock(){
+      ensureAudio();
+      audioCtx && audioCtx.resume && audioCtx.resume();
+      state.audioAllowed = true;
+      document.removeEventListener(ev, unlock);
+    });
+  });
+
+  // initial weather attempt (non-blocking)
+  applyWeatherBackground();
+
+  // set up AR canvas size
+  resizeAR();
+
+  // small auto-animations
+  setInterval(()=> { cubeRotation.y += 0.4; }, 3500);
+
+  // seconds on site counter
+  setInterval(()=> { state.secOnSite++; }, 1000);
+
+  // show a friendly tip
+  setTimeout(()=> showToast('All set — explore features. Try AR on mobile!'), 900);
+})();
+
+/* ---------- Small safety & fallback: handle page visibility to pause heavy tasks ---------- */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){ /* could pause animations */ } else { /* resume */ }
+});
+</script>
+</body>
+</html>
